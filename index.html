@@ -42,11 +42,26 @@
 const display = document.getElementById("display");
 
 function appendValue(value) {
+    const current = display.value;
+    const operators = ['+', '-', '*', '/', '%'];
+
+    // Start me operator allow nahi
+    if (current === '' && operators.includes(value)) {
+        return;
+    }
+
+    // Do operators lagatar allow nahi
+    const lastChar = current.slice(-1);
+
+    if (operators.includes(lastChar) && operators.includes(value)) {
+        return;
+    }
+
     display.value += value;
 }
 
 function clearDisplay() {
-    display.value = "";
+    display.value = '';
 }
 
 function deleteLast() {
@@ -55,11 +70,19 @@ function deleteLast() {
 
 function calculate() {
     try {
-        display.value = eval(display.value);
+        const expression = display.value;
+
+        // Last me operator ho to calculate mat karo
+        if (['+', '-', '*', '/', '%'].includes(expression.slice(-1))) {
+            return;
+        }
+
+        display.value = eval(expression);
     } catch {
-        display.value = "Error";
+        display.value = 'Error';
     }
 }
+
 </script>
 
 </body>
