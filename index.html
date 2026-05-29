@@ -42,22 +42,29 @@
 const display = document.getElementById("display");
 
 function appendValue(value) {
-    const current = display.value;
     const operators = ['+', '-', '*', '/', '%'];
+    const current = display.value;
 
-    // Start me operator allow nahi
-    if (current === '' && operators.includes(value)) {
-        return;
-    }
+    // Maximum length
+    if (current.length >= 20) return;
 
-    // Do operators lagatar allow nahi
+    // First character operator na ho
+    if (current === '' && operators.includes(value)) return;
+
+    // Consecutive operators na ho
     const lastChar = current.slice(-1);
 
-    if (operators.includes(lastChar) && operators.includes(value)) {
+    if (
+        operators.includes(lastChar) &&
+        operators.includes(value)
+    ) {
         return;
     }
 
     display.value += value;
+
+    // Auto scroll to right
+    display.scrollLeft = display.scrollWidth;
 }
 
 function clearDisplay() {
@@ -72,12 +79,27 @@ function calculate() {
     try {
         const expression = display.value;
 
-        // Last me operator ho to calculate mat karo
-        if (['+', '-', '*', '/', '%'].includes(expression.slice(-1))) {
+        // Empty display
+        if (expression === '') return;
+
+        // Last me operator na ho
+        if (
+            ['+', '-', '*', '/', '%']
+            .includes(expression.slice(-1))
+        ) {
             return;
         }
 
-        display.value = eval(expression);
+        let result = eval(expression);
+
+        // Large result formatting
+        if (result.toString().length > 12) {
+            result = Number(result).toExponential(4);
+        }
+
+        display.value = result;
+
+        display.scrollLeft = display.scrollWidth;
     } catch {
         display.value = 'Error';
     }
