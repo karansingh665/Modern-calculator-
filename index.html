@@ -39,21 +39,26 @@
 </div>
 
 <script>
+
+
 const display = document.getElementById("display");
 
+const operators = ['+', '-', '*', '/', '%'];
+const maxLength = 20;
+
 function appendValue(value) {
-    const operators = ['+', '-', '*', '/', '%'];
     const current = display.value;
-
-    // Maximum length
-    if (current.length >= 20) return;
-
-    // First character operator na ho
-    if (current === '' && operators.includes(value)) return;
-
-    // Consecutive operators na ho
     const lastChar = current.slice(-1);
 
+    // Maximum length limit
+    if (current.length >= maxLength) return;
+
+    // First character operator na ho
+    if (current === '' && operators.includes(value)) {
+        return;
+    }
+
+    // Consecutive operators block
     if (
         operators.includes(lastChar) &&
         operators.includes(value)
@@ -61,9 +66,30 @@ function appendValue(value) {
         return;
     }
 
+    // Decimal validation
+    if (value === '.') {
+        const parts = current.split(/[+\-*/%]/);
+        const currentNumber = parts[parts.length - 1];
+
+        // Ek number me sirf ek decimal
+        if (currentNumber.includes('.')) {
+            return;
+        }
+
+        // Operator ke baad "." dabaye to "0." add ho
+        if (
+            current === '' ||
+            operators.includes(lastChar)
+        ) {
+            display.value += '0.';
+            display.scrollLeft = display.scrollWidth;
+            return;
+        }
+    }
+
     display.value += value;
 
-    // Auto scroll to right
+    // Auto scroll right
     display.scrollLeft = display.scrollWidth;
 }
 
@@ -79,32 +105,38 @@ function calculate() {
     try {
         const expression = display.value;
 
-        // Empty display
+        // Empty expression
         if (expression === '') return;
 
-        // Last me operator na ho
+        // Last character operator na ho
         if (
-            ['+', '-', '*', '/', '%']
-            .includes(expression.slice(-1))
+            operators.includes(
+                expression.charAt(expression.length - 1)
+            )
         ) {
             return;
         }
 
         let result = eval(expression);
 
-        // Large result formatting
-        if (result.toString().length > 12) {
-            result = Number(result).toExponential(4);
+        // Infinity handle
+        if (!isFinite(result)) {
+            display.value = 'Error';
+            return;
         }
 
-        display.value = result;
+        // Floating point cleanup
+        if (typeof result === 'number') {
+            result = Number(result.toFixed(10));
+        }
+
+        display.value = result.toString();
 
         display.scrollLeft = display.scrollWidth;
     } catch {
         display.value = 'Error';
     }
 }
-
 </script>
 
 </body>
